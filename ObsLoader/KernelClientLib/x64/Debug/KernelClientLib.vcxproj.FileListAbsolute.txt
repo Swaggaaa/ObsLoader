@@ -1,0 +1,2 @@
+C:\Users\sergi\Source\Repos\AndreKernelModule\x64\Debug\KernelClientLib.pdb
+C:\Users\sergi\source\repos\AndreKernelModule\KernelClientLib\x64\Debug\KernelClientLib.pdb
