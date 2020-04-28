@@ -5,6 +5,7 @@ enum MyKernelMessageType
 {
     ReadRequest,
     WriteRequest,
+    WriteFromLoaderRequest,
     GetModuleBaseAddressRequest,
     AllocRequest,
     CreateThreadRequest,
@@ -34,6 +35,15 @@ struct MyKernelMessage
             UINT64 Length;				//Size of the copy(in bytes)
             SIZE_T BytesWritten;			//Number of bytes read
         } WriteRequestMessage;
+
+        struct _WriteFromLoaderRequest
+        {
+            UINT64 LoaderProcessPid;	//PID of the loader
+            UINT64 UniqueProcessPid;	//PID of the target
+            PVOID Source;				//Address in loader address sapce
+            PVOID Destination;			//Address in in the target address space
+            UINT64 Length;				//Size of the copy(in bytes)
+        } WriteFromLoaderRequestMessage;
 
         struct _GetModuleBaseAddress
         {
@@ -129,6 +139,19 @@ BOOL KernelModule::WriteProcessMemory(UINT64 pid, PVOID address, PVOID source, S
 	if (bytesWritten != nullptr)
 		*bytesWritten = message.Message.WriteRequestMessage.BytesWritten;
 	return NT_SUCCESS(message.RequestStatus);
+}
+
+BOOL KernelModule::WriteProcessMemoryFromLoader(UINT64 pid, PVOID address, PVOID source, SIZE_T size)
+{
+    MyKernelMessage message;
+    message.MessageType = MyKernelMessageType::WriteFromLoaderRequest;
+    message.Message.WriteFromLoaderRequestMessage.LoaderProcessPid = GetCurrentProcessId();
+    message.Message.WriteFromLoaderRequestMessage.UniqueProcessPid = pid;
+    message.Message.WriteFromLoaderRequestMessage.Length = size;
+    message.Message.WriteFromLoaderRequestMessage.Source = source;
+    message.Message.WriteFromLoaderRequestMessage.Destination = address;
+    ZwConvertBetweenAuxiliaryCounterAndPerformanceCounter(69, &message, &message, nullptr);
+    return NT_SUCCESS(message.RequestStatus);
 }
 
 

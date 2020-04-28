@@ -77,7 +77,8 @@ void loader::inject_dll(const int pid) const
     const auto LoadLibraryA = LPVOID(GetProcAddress(GetModuleHandleA(load_library_dll.c_str()), load_library_proc_name.c_str()));
     const auto allocated_dll_name = KernelModule::VirtualAlloc(pid, nullptr, load_library_proc_name.length(), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-    if (!KernelModule::WriteProcessMemory(pid, allocated_dll_name, PVOID(this->dll_path_.c_str()), this->dll_path_.length(), nullptr))
+    //if (!KernelModule::WriteProcessMemory(pid, allocated_dll_name, PVOID(this->dll_path_.c_str()), this->dll_path_.length(), nullptr))
+    if (!KernelModule::WriteProcessMemoryFromLoader(pid, allocated_dll_name, PVOID(this->dll_path_.c_str()), this->dll_path_.length()))
     {
         throw std::runtime_error("Failed to write DLL path into the target process");
     }

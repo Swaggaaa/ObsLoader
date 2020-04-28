@@ -31,6 +31,9 @@ namespace KernelModule
 		return WriteProcessMemory(pid, address, PVOID(source), sizeof(T), nullptr);
 	}
 
+
+	BOOL WriteProcessMemoryFromLoader(UINT64 pid, PVOID address, PVOID source, SIZE_T size);
+
 	PVOID GetModuleAddress(UINT64 pid, LPCWSTR moduleName);
 
 	LPVOID VirtualAlloc(UINT64 UniqueProcessPid, LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
