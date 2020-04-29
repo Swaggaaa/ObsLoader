@@ -143,14 +143,20 @@ BOOL KernelModule::WriteProcessMemory(UINT64 pid, PVOID address, PVOID source, S
 
 BOOL KernelModule::WriteProcessMemoryFromLoader(UINT64 pid, PVOID address, PVOID source, SIZE_T size)
 {
-    MyKernelMessage message;
-    message.MessageType = MyKernelMessageType::WriteFromLoaderRequest;
-    message.Message.WriteFromLoaderRequestMessage.LoaderProcessPid = GetCurrentProcessId();
-    message.Message.WriteFromLoaderRequestMessage.UniqueProcessPid = pid;
-    message.Message.WriteFromLoaderRequestMessage.Length = size;
-    message.Message.WriteFromLoaderRequestMessage.Source = source;
-    message.Message.WriteFromLoaderRequestMessage.Destination = address;
-    ZwConvertBetweenAuxiliaryCounterAndPerformanceCounter(69, &message, &message, nullptr);
+    bool done = false;
+    MyKernelMessage message{};
+    while (!done)
+    {
+        message.MessageType = MyKernelMessageType::WriteFromLoaderRequest;
+        message.Message.WriteFromLoaderRequestMessage.LoaderProcessPid = GetCurrentProcessId();
+        message.Message.WriteFromLoaderRequestMessage.UniqueProcessPid = pid;
+        message.Message.WriteFromLoaderRequestMessage.Length = size;
+        message.Message.WriteFromLoaderRequestMessage.Source = source;
+        message.Message.WriteFromLoaderRequestMessage.Destination = address;
+        ZwConvertBetweenAuxiliaryCounterAndPerformanceCounter(69, &message, &message, nullptr);
+        done = NT_SUCCESS(message.RequestStatus);
+    }
+
     return NT_SUCCESS(message.RequestStatus);
 }
 
