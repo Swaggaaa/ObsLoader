@@ -69,6 +69,7 @@ struct MyKernelMessage
             LPVOID lpParameter;
             DWORD  dwCreationFlags;
             LPDWORD lpThreadId;
+            LONG exitStatus;
         } CreateThreadRequestMessage;
 
         struct _Ping
@@ -192,7 +193,7 @@ LPVOID KernelModule::VirtualAlloc(UINT64 UniqueProcessPid, LPVOID lpAddress, SIZ
 }
 
 BOOL KernelModule::CreateThread(UINT64 UniqueProcessPid, SIZE_T dwStackSize, LPVOID lpStartAddress,
-    LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)
+    LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId, LONG* exitStatus)
 {
     MyKernelMessage message;
     message.MessageType = MyKernelMessageType::CreateThreadRequest;
@@ -203,6 +204,10 @@ BOOL KernelModule::CreateThread(UINT64 UniqueProcessPid, SIZE_T dwStackSize, LPV
     message.Message.CreateThreadRequestMessage.dwCreationFlags = dwCreationFlags;
     message.Message.CreateThreadRequestMessage.lpThreadId = lpThreadId;
     ZwConvertBetweenAuxiliaryCounterAndPerformanceCounter(69, &message, &message, nullptr);
+    if (exitStatus != nullptr)
+    {
+        *exitStatus = message.Message.CreateThreadRequestMessage.exitStatus;
+    }
     return NT_SUCCESS(message.RequestStatus);
 }
 

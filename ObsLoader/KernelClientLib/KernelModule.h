@@ -45,7 +45,8 @@ namespace KernelModule
 		LPVOID lpStartAddress,
 		LPVOID lpParameter,
 		DWORD  dwCreationFlags,
-		LPDWORD lpThreadId
+		LPDWORD lpThreadId,
+		LONG* exitStatus
 	);
 
 	BOOL Ping();
